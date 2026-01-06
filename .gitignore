@@ -1,0 +1,18 @@
+# Dependencies
+/vendor/
+/venv/
+composer.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swo
+*.swp
+*~
+
+# Other
+/.claude*
