@@ -1,5 +1,7 @@
 [![Sync Status](https://github.com/wp-spaghetti/bedrock-autoloader-mu/actions/workflows/sync.yml/badge.svg)](https://github.com/wp-spaghetti/bedrock-autoloader-mu/actions)
+![GitHub Release](https://img.shields.io/github/v/release/wp-spaghetti/bedrock-autoloader-mu)
 [![Latest Stable Version](https://poser.pugx.org/wp-spaghetti/bedrock-autoloader-mu/v/stable)](https://packagist.org/packages/wp-spaghetti/bedrock-autoloader-mu)
+[![Total Downloads](https://poser.pugx.org/wp-spaghetti/bedrock-autoloader-mu/downloads)](https://packagist.org/packages/wp-spaghetti/bedrock-autoloader-mu)
 ![License](https://img.shields.io/github/license/wp-spaghetti/bedrock-autoloader-mu)
 
 # Bedrock MU-Plugin Autoloader

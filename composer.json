@@ -49,7 +49,7 @@
             "@copy-to-mu-plugins-root"
         ],
         "copy-to-mu-plugins-root": [
-            "[ -f bedrock-autoloader.php ] && cp -f bedrock-autoloader.php ../../bedrock-autoloader.php && echo 'Copied bedrock-autoloader.php to mu-plugins root' || true"
+            "[ -f bedrock-autoloader.php ] && cp -f bedrock-autoloader.php ../bedrock-autoloader.php && echo 'Copied bedrock-autoloader.php to mu-plugins root' || true"
         ]
     }
 }
