@@ -3,7 +3,7 @@
  * Plugin Name:  Bedrock Autoloader MU
  * Plugin URI:   https://github.com/wp-spaghetti/bedrock-autoloader-mu
  * Description:  An autoloader that enables standard plugins to be required just like must-use plugins. The autoloaded plugins are included during mu-plugin loading. An asterisk (*) next to the name of the plugin designates the plugins that have been autoloaded. Self-contained version, auto-synced daily from roots/bedrock.
- * Version:      ${VERSION}
+ * Version:      1.0.20260106
  * Author:       Frugan
  * Author URI:   https://github.com/wp-spaghetti
  * License:      MIT
@@ -202,8 +202,6 @@ class Autoloader
     }
 }
 
-
-namespace Roots\Bedrock;
 
 if (is_blog_installed() && class_exists(Autoloader::class)) {
     new Autoloader();
