@@ -30,13 +30,13 @@ jobs:
       - name: Create combined file
         run: |
           VERSION="${{ steps.set_version.outputs.VERSION }}"
-          cat > bedrock-autoloader.php << HEADER
+          cat > bedrock-autoloader.php << 'HEADER'
           <?php
           /**
            * Plugin Name:  Bedrock Autoloader MU
            * Plugin URI:   https://github.com/wp-spaghetti/bedrock-autoloader-mu
            * Description:  An autoloader that enables standard plugins to be required just like must-use plugins. The autoloaded plugins are included during mu-plugin loading. An asterisk (*) next to the name of the plugin designates the plugins that have been autoloaded. Self-contained version, auto-synced daily from roots/bedrock.
-           * Version:      \${VERSION}
+           * Version:      VERSION_PLACEHOLDER
            * Author:       Frugan
            * Author URI:   https://github.com/wp-spaghetti
            * License:      MIT
@@ -53,6 +53,9 @@ jobs:
 
           HEADER
           
+          # Replace version placeholder
+          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" bedrock-autoloader.php
+          
           # Extract only the class from Autoloader.php (remove <?php tag)
           sed '1d' Autoloader.php >> bedrock-autoloader.php
           
@@ -60,8 +63,7 @@ jobs:
           echo "" >> bedrock-autoloader.php
           echo "" >> bedrock-autoloader.php
           
-          # Extract the execution part from wrapper.php (remove header comments and <?php)
-          sed -n '/^namespace/,/^}/p' wrapper.php >> bedrock-autoloader.php || \
+          # Extract only the instantiation code from wrapper.php (skip namespace declaration)
           sed -n '/if.*is_blog_installed/,$p' wrapper.php >> bedrock-autoloader.php
           
           # Cleanup temporary files
@@ -92,5 +94,11 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         run: |
           VERSION="${{ steps.set_version.outputs.VERSION }}"
-          git tag -a "v${VERSION}" -m "Auto-sync version ${VERSION}"
-          git push origin "v${VERSION}"
+          
+          # Check if tag already exists
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists, skipping tag creation"
+          else
+            git tag -a "v${VERSION}" -m "Auto-sync version ${VERSION}"
+            git push origin "v${VERSION}"
+          fi
