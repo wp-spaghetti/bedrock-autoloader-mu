@@ -67,7 +67,14 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git diff --exit-code bedrock-autoloader.php || echo "changed=true" >> $GITHUB_OUTPUT
+          # Add file to staging to detect both new and modified files
+          git add bedrock-autoloader.php
+          if git diff --cached --quiet bedrock-autoloader.php; then
+            echo "No changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in bedrock-autoloader.php"
+          fi
 
       - name: Commit and push if changed
         if: steps.check_changes.outputs.changed == 'true'
