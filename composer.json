@@ -29,10 +29,17 @@
     },
     "require": {
         "php": ">=7.1",
+        "composer-runtime-api": "^2.0",
         "composer/installers": "^1.0 || ^2.0"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.48"
+        "ergebnis/composer-normalize": "^2.48",
+        "friendsofphp/php-cs-fixer": "^3.92"
+    },
+    "autoload": {
+        "psr-4": {
+            "WpSpaghetti\\BedrockAutoloader\\": "src/"
+        }
     },
     "config": {
         "allow-plugins": {
@@ -42,14 +49,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "post-install-cmd": [
-            "@copy-to-mu-plugins-root"
-        ],
-        "post-update-cmd": [
-            "@copy-to-mu-plugins-root"
-        ],
-        "copy-to-mu-plugins-root": [
-            "[ -f bedrock-autoloader.php ] && cp -f bedrock-autoloader.php ../bedrock-autoloader.php && echo 'Copied bedrock-autoloader.php to mu-plugins root' || true"
-        ]
+        "lint": "@lint:fix --dry-run",
+        "lint:fix": "@php ./vendor/bin/php-cs-fixer fix --diff --using-cache=no"
     }
 }

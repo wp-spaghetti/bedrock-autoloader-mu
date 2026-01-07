@@ -20,17 +20,33 @@ This package solves that by:
 
 ## Installation
 
-Install via Composer:
+### Method 1: Via Composer with Auto-Copy Helper (Recommended)
+
+Install the package:
 ```bash
 composer require wp-spaghetti/bedrock-autoloader-mu
 ```
 
-Add to your `composer.json` installer-paths:
+Add this to your **project root** `composer.json`:
 ```json
 {
+    "require": {
+        "wp-spaghetti/bedrock-autoloader-mu": "^1.0"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@copy-bedrock-autoloader-mu"
+        ],
+        "post-update-cmd": [
+            "@copy-bedrock-autoloader-mu"
+        ],
+        "copy-bedrock-autoloader-mu": [
+            "WpSpaghetti\\BedrockAutoloader\\CopyHelper::copy"
+        ]
+    },
     "extra": {
         "installer-paths": {
-            "../../public/wp-content/mu-plugins/{$name}/": [
+            "wp-content/mu-plugins/{$name}/": [
                 "type:wordpress-muplugin"
             ]
         }
@@ -38,11 +54,40 @@ Add to your `composer.json` installer-paths:
 }
 ```
 
-**How it works:**
-1. Composer installs the package in `mu-plugins/bedrock-autoloader-mu/`
-2. A post-install script automatically copies `bedrock-autoloader.php` to `mu-plugins/bedrock-autoloader.php`
-3. WordPress loads `mu-plugins/bedrock-autoloader.php` directly
-4. The autoloader loads all other mu-plugin subdirectories
+The helper class will automatically copy `bedrock-autoloader.php` to `mu-plugins/` root on install and update.
+
+### Method 2: Via Composer with Direct Download
+
+Install the package to manage versions via Composer, then download the file directly:
+
+Add this to your **project root** `composer.json`:
+```json
+{
+    "require": {
+        "wp-spaghetti/bedrock-autoloader-mu": "^1.0"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@copy-bedrock-autoloader-mu"
+        ],
+        "post-update-cmd": [
+            "@copy-bedrock-autoloader-mu"
+        ],
+        "copy-bedrock-autoloader-mu": [
+            "curl -sS https://raw.githubusercontent.com/wp-spaghetti/bedrock-autoloader-mu/main/bedrock-autoloader.php -o wp-content/mu-plugins/bedrock-autoloader.php"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "wp-content/mu-plugins/{$name}/": [
+                "type:wordpress-muplugin"
+            ]
+        }
+    }
+}
+```
+
+> **Note:** Adjust the path `wp-content/mu-plugins/bedrock-autoloader.php` according to your project structure.
 
 ## Usage
 
@@ -52,28 +97,22 @@ Example structure after installation:
 ```
 wp-content/
 └── mu-plugins/
-    ├── bedrock-autoloader.php (copied here by Composer script)
+    ├── bedrock-autoloader.php (← main autoloader file)
     ├── bedrock-autoloader-mu/
-    │   └── bedrock-autoloader.php (original file)
+    │   ├── bedrock-autoloader.php
+    │   ├── src/
+    │   │   └── CopyHelper.php (← helper class)
+    │   └── composer.json
     └── your-mu-plugin/
-        └── your-mu-plugin.php (auto-loaded)
+        └── your-mu-plugin.php (← auto-loaded)
 ```
 
-### Example with Composer
-```json
-{
-    "require": {
-        "wp-spaghetti/bedrock-autoloader-mu": "^1.0"
-    },
-    "extra": {
-        "installer-paths": {
-            "../../public/wp-content/mu-plugins/{$name}/": [
-                "type:wordpress-muplugin"
-            ]
-        }
-    }
-}
-```
+## How It Works
+
+1. Composer installs the package in `mu-plugins/bedrock-autoloader-mu/`
+2. Your post-install script copies `bedrock-autoloader.php` to `mu-plugins/` root
+3. WordPress loads `mu-plugins/bedrock-autoloader.php` directly
+4. The autoloader loads all other mu-plugin subdirectories
 
 ## Auto-Sync
 
@@ -82,6 +121,25 @@ This repository automatically syncs the following files every day at 2 AM UTC:
 - [bedrock-autoloader.php](https://github.com/roots/bedrock/blob/master/web/app/mu-plugins/bedrock-autoloader.php) - The wrapper file
 
 When changes are detected, a new version tag is automatically created with format `v1.0.YYYYMMDD`.
+
+## Troubleshooting
+
+### File not copied to mu-plugins root
+
+Make sure:
+1. You've added the scripts to your **project root** `composer.json` (not the package's composer.json)
+2. Your `installer-paths` correctly points to your mu-plugins directory
+3. The helper class can write to the mu-plugins directory (check permissions)
+
+### Different project structure
+
+If your project has a custom structure, adjust the paths in your scripts. The helper class copies the file relative to the vendor directory, so you may need to use a custom shell script instead:
+
+```json
+"copy-bedrock-autoloader-mu": [
+    "cp -f custom/path/to/vendor/wp-spaghetti/bedrock-autoloader-mu/bedrock-autoloader.php custom/path/to/mu-plugins/"
+]
+```
 
 ## Contributing
 

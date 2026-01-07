@@ -1,0 +1,6 @@
+# Exclude files and directories from Git archives (including Packagist)
+.github/ export-ignore
+tests/ export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+commitlint.config.mjs export-ignore
