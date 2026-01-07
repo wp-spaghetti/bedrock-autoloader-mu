@@ -52,7 +52,7 @@ class CopyHelper
             return;
         }
 
-        $source = $packagePath.'/bedrock-autoloader.php';
+        $source = $packagePath.'/dist/bedrock-autoloader.php';
 
         // Use custom destination or auto-detect parent directory
         if (null !== $customDestination) {

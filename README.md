@@ -74,7 +74,7 @@ Add this to your **project root** `composer.json`:
             "@copy-bedrock-autoloader-mu"
         ],
         "copy-bedrock-autoloader-mu": [
-            "curl -sS https://raw.githubusercontent.com/wp-spaghetti/bedrock-autoloader-mu/main/bedrock-autoloader.php -o wp-content/mu-plugins/bedrock-autoloader.php"
+            "curl -sS https://raw.githubusercontent.com/wp-spaghetti/bedrock-autoloader-mu/main/dist/bedrock-autoloader.php -o wp-content/mu-plugins/bedrock-autoloader.php"
         ]
     },
     "extra": {
@@ -97,9 +97,10 @@ Example structure after installation:
 ```
 wp-content/
 └── mu-plugins/
-    ├── bedrock-autoloader.php (← main autoloader file)
+    ├── bedrock-autoloader.php (← main autoloader file, copied from dist/)
     ├── bedrock-autoloader-mu/
-    │   ├── bedrock-autoloader.php
+    │   ├── dist/
+    │   │   └── bedrock-autoloader.php (← source template)
     │   ├── src/
     │   │   └── CopyHelper.php (← helper class)
     │   └── composer.json
@@ -110,7 +111,7 @@ wp-content/
 ## How It Works
 
 1. Composer installs the package in `mu-plugins/bedrock-autoloader-mu/`
-2. Your post-install script copies `bedrock-autoloader.php` to `mu-plugins/` root
+2. Your post-install script copies `dist/bedrock-autoloader.php` to `mu-plugins/` root
 3. WordPress loads `mu-plugins/bedrock-autoloader.php` directly
 4. The autoloader loads all other mu-plugin subdirectories
 
@@ -119,6 +120,8 @@ wp-content/
 This repository automatically syncs the following files every day at 2 AM UTC:
 - [Autoloader.php](https://github.com/roots/bedrock-autoloader/blob/master/src/Autoloader.php) - The autoloader class
 - [bedrock-autoloader.php](https://github.com/roots/bedrock/blob/master/web/app/mu-plugins/bedrock-autoloader.php) - The wrapper file
+
+The combined file is generated and saved in the `dist/` directory to prevent it from being autoloaded by itself.
 
 When changes are detected, a new version tag is automatically created with format `v1.0.YYYYMMDD`.
 
@@ -137,7 +140,7 @@ If your project has a custom structure, adjust the paths in your scripts. The he
 
 ```json
 "copy-bedrock-autoloader-mu": [
-    "cp -f custom/path/to/vendor/wp-spaghetti/bedrock-autoloader-mu/bedrock-autoloader.php custom/path/to/mu-plugins/"
+    "cp -f custom/path/to/vendor/wp-spaghetti/bedrock-autoloader-mu/dist/bedrock-autoloader.php custom/path/to/mu-plugins/"
 ]
 ```
 

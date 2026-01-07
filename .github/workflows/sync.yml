@@ -23,14 +23,19 @@ jobs:
           curl -sS https://raw.githubusercontent.com/roots/bedrock-autoloader/master/src/Autoloader.php -o Autoloader.php
           curl -sS https://raw.githubusercontent.com/roots/bedrock/master/web/app/mu-plugins/bedrock-autoloader.php -o wrapper.php
 
-      - name: Set version variable
-        id: set_version
-        run: echo "VERSION=1.0.$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-
-      - name: Create combined file
+      - name: Create combined file without version update
         run: |
-          VERSION="${{ steps.set_version.outputs.VERSION }}"
-          cat > bedrock-autoloader.php << 'HEADER'
+          # Create dist directory if it doesn't exist
+          mkdir -p dist
+          
+          # Get current version from existing file (or use default)
+          if [ -f dist/bedrock-autoloader.php ]; then
+            CURRENT_VERSION=$(grep -oP "Version:\s+\K[\d.]+" dist/bedrock-autoloader.php || echo "1.0.0")
+          else
+            CURRENT_VERSION="1.0.0"
+          fi
+          
+          cat > dist/bedrock-autoloader.php << 'HEADER'
           <?php
           /**
            * Plugin Name:  Bedrock Autoloader MU
@@ -53,40 +58,55 @@ jobs:
 
           HEADER
           
-          # Replace version placeholder
-          sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" bedrock-autoloader.php
+          # Keep current version for now (will update later if changes detected)
+          sed -i "s/VERSION_PLACEHOLDER/${CURRENT_VERSION}/g" dist/bedrock-autoloader.php
           
           # Extract only the class from Autoloader.php (remove <?php tag)
-          sed '1d' Autoloader.php >> bedrock-autoloader.php
+          sed '1d' Autoloader.php >> dist/bedrock-autoloader.php
           
           # Add spacing
-          echo "" >> bedrock-autoloader.php
-          echo "" >> bedrock-autoloader.php
+          echo "" >> dist/bedrock-autoloader.php
+          echo "" >> dist/bedrock-autoloader.php
           
           # Extract only the instantiation code from wrapper.php (skip namespace declaration)
-          sed -n '/if.*is_blog_installed/,$p' wrapper.php >> bedrock-autoloader.php
+          sed -n '/if.*is_blog_installed/,$p' wrapper.php >> dist/bedrock-autoloader.php
           
           # Cleanup temporary files
           rm Autoloader.php wrapper.php
 
-      - name: Check for changes
+      - name: Check for changes (ignore version line)
         id: check_changes
         run: |
-          # Add file to staging to detect both new and modified files
-          git add bedrock-autoloader.php
-          if git diff --cached --quiet bedrock-autoloader.php; then
-            echo "No changes detected"
+          # Stage the new file
+          git add dist/bedrock-autoloader.php
+          
+          # Check if there are changes ignoring the Version line
+          if git diff --cached -I "Version:" --quiet dist/bedrock-autoloader.php; then
+            echo "No code changes detected (only version would differ)"
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
+            echo "Code changes detected"
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in bedrock-autoloader.php"
           fi
+
+      - name: Update version if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        id: set_version
+        run: |
+          NEW_VERSION="1.0.$(date +'%Y%m%d')"
+          echo "VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          
+          # Update version in the file
+          sed -i "s/Version:\s*[0-9.]\+/Version:      ${NEW_VERSION}/" dist/bedrock-autoloader.php
+          
+          echo "Updated version to ${NEW_VERSION}"
 
       - name: Commit and push if changed
         if: steps.check_changes.outputs.changed == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add bedrock-autoloader.php
+          git add dist/bedrock-autoloader.php
           git commit -m "chore: sync bedrock-autoloader.php from roots/bedrock"
           git push
 
@@ -101,4 +121,5 @@ jobs:
           else
             git tag -a "v${VERSION}" -m "Auto-sync version ${VERSION}"
             git push origin "v${VERSION}"
+            echo "Created and pushed tag v${VERSION}"
           fi
