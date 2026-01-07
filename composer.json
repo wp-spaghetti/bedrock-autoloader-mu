@@ -1,6 +1,6 @@
 {
     "name": "wp-spaghetti/bedrock-autoloader-mu",
-    "description": "Self-contained Bedrock MU-Plugin Autoloader, auto-synced daily from roots/bedrock",
+    "description": "Self-contained Bedrock MU-Plugin Autoloader, auto-synced daily from roots/bedrock and roots/bedrock-autoloader",
     "license": "MIT",
     "type": "wordpress-muplugin",
     "keywords": [
