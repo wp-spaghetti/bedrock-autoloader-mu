@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace WpSpaghetti\BedrockAutoloader;
 
 use Composer\InstalledVersions;
+use Composer\Script\Event;
 
 /**
  * Helper class to copy bedrock-autoloader.php to mu-plugins root.
@@ -31,9 +32,10 @@ class CopyHelper
      * This method automatically detects the package installation path using Composer APIs
      * and copies the main autoloader file to the parent mu-plugins directory.
      *
+     * @param null|Event  $event             Composer event (automatically passed by Composer)
      * @param null|string $customDestination Optional custom destination path
      */
-    public static function copy(?string $customDestination = null): void
+    public static function copy(?Event $event = null, ?string $customDestination = null): void
     {
         // Auto-detect package installation path using Composer API
         try {
